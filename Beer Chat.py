@@ -82,118 +82,80 @@ TEMPLATE = '''
 <html>
 <head>
     <title>1 MILLION BEERS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #fffaf2;
+            font-family: 'Press Start 2P', monospace;
+            background-image: url('https://i.imgur.com/vOeGzTp.png');
+            background-size: cover;
+            color: #ffcc66;
             text-align: center;
-            padding: 20px;
-            color: #333;
+            padding: 40px;
         }
         h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
+            font-size: 24px;
+            color: #fff1c1;
+            text-shadow: 2px 2px #000;
         }
-        .total-counter {
-            font-size: 2em;
-            margin: 10px 0 30px;
+        .panel {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 4px solid #d4a24b;
+            padding: 20px;
+            max-width: 700px;
+            margin: 0 auto 30px;
+            border-radius: 10px;
         }
-        .tabs button {
-            padding: 10px 20px;
-            margin: 0 5px;
+        .btn-main {
+            background-color: #d4a24b;
+            color: #000;
+            padding: 20px 40px;
+            font-size: 16px;
+            border: none;
             cursor: pointer;
-            font-weight: bold;
-            border: 1px solid #ccc;
-            background: #f5f5f5;
-        }
-        .tabs button.active {
-            background: #ffe082;
-        }
-        .tab-content {
-            display: none;
-        }
-        .tab-content.active {
-            display: block;
+            border-radius: 8px;
+            margin-bottom: 20px;
         }
         table {
-            margin: auto;
-            border-collapse: collapse;
             width: 100%;
-            max-width: 700px;
+            border-collapse: collapse;
+            margin-top: 20px;
         }
         th, td {
-            padding: 10px;
-            border-bottom: 1px solid #ddd;
+            padding: 12px;
+            border-bottom: 1px solid #d4a24b;
         }
         .buttons form {
             display: inline;
-            margin-left: 10px;
         }
-        #pint {
-            position: fixed;
-            bottom: 20px;
-            right: -100px;
-            width: 100px;
-            transition: right 0.5s ease-in-out;
-        }
-        #woman {
-            position: fixed;
-            bottom: 0;
-            left: -200px;
-            width: 150px;
-            transition: left 0.8s ease-in-out;
+        .buttons button {
+            margin: 2px;
+            background-color: #ffcc66;
+            border: none;
+            padding: 8px;
+            cursor: pointer;
+            border-radius: 4px;
         }
     </style>
     <script>
-        function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
-            document.getElementById('btn-' + id).classList.add('active');
-        }
-
-        function animatePint() {
-            const pint = document.getElementById('pint');
-            pint.style.right = '20px';
-            setTimeout(() => {
-                pint.style.right = '-100px';
-            }, 1500);
-        }
-
-        function animateWoman() {
-            const woman = document.getElementById('woman');
-            woman.style.left = '20px';
-            const audio = new Audio('https://www.soundjay.com/human/sounds/female-voice-alcoholic.mp3');
-            audio.play();
-            setTimeout(() => {
-                woman.style.left = '-200px';
-            }, 2000);
-        }
-
         function triggerAnimation(amount) {
-            if (amount === 1) animatePint();
-            if (amount === 5) animateWoman();
+            // Placeholder for future animation logic
         }
-
-        window.onload = () => showTab('total');
     </script>
 </head>
 <body>
-    <h1>1 MILLION BEERS</h1>
-    <div class="total-counter">Total Beers Consumed: 🍺 {{ grand_total }}</div>
-
-    <div class="tabs">
-        <button id="btn-total" onclick="showTab('total')">Total</button>
-        <button id="btn-weekly" onclick="showTab('weekly')">This Week</button>
-        <button id="btn-monthly" onclick="showTab('monthly')">This Month</button>
+    <h1>🍺 THE BEER LOG TAVERN 🍺</h1>
+    <div class="panel">
+        <form action="/add/Daniel/1" method="post" style="display:inline-block;">
+            <button class="btn-main" type="submit">+1 BEER</button>
+        </form>
+        <div style="margin-top: 15px; font-size: 14px; color: #fff">Total Beers Consumed: {{ grand_total }}</div>
     </div>
 
-    {% for label, stats, id in [('Total', total, 'total'), ('This Week', weekly, 'weekly'), ('This Month', monthly, 'monthly')] %}
-    <div class="tab-content" id="{{ id }}">
-        <h2>{{ label }} Leaderboard</h2>
+    <div class="panel">
+        <h2>Top Drinkers This Week</h2>
         <table>
-            <tr><th>Rank</th><th>Name</th><th>Beers</th><th>Add</th></tr>
-            {% for row in stats %}
+            <tr><th>Rank</th><th>Name</th><th>Beers</th></tr>
+            {% for row in weekly %}
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>
@@ -202,22 +164,10 @@ TEMPLATE = '''
                     {% if row[1] == 0 %}<br><small><em>Virgin</em></small>{% endif %}
                 </td>
                 <td>{{ row[1] }}</td>
-                <td class="buttons">
-                    <form action="/add/{{ row[0] }}/1" method="post" onsubmit="triggerAnimation(1)">
-                        <button type="submit">+1</button>
-                    </form>
-                    <form action="/add/{{ row[0] }}/5" method="post" onsubmit="triggerAnimation(5)">
-                        <button type="submit">+5</button>
-                    </form>
-                </td>
             </tr>
             {% endfor %}
         </table>
     </div>
-    {% endfor %}
-
-    <img id="pint" src="https://i.imgur.com/OyQ7W9D.png" alt="Pint Glass">
-    <img id="woman" src="https://i.imgur.com/woman-placeholder.png" alt="Woman with Beers">
 </body>
 </html>
 '''
@@ -226,3 +176,4 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
