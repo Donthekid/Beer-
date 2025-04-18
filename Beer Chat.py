@@ -76,44 +76,99 @@ TEMPLATE = '''
 <head>
     <title>🍺 Beer Leaderboard</title>
     <style>
-        body { font-family: sans-serif; text-align: center; }
-        h2 { margin-top: 40px; }
-        table { margin: auto; border-collapse: collapse; }
-        td, th { padding: 8px 12px; border: 1px solid #ddd; }
-        form { display: inline; }
-        .name { width: 150px; text-align: left; }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f9f2ec;
+            text-align: center;
+            padding: 30px;
+            color: #333;
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        h2 {
+            margin-top: 40px;
+            color: #4a3f35;
+        }
+        .leaderboard, .add-section {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        td.name {
+            text-align: left;
+        }
+        button {
+            background-color: #ffcc00;
+            border: none;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease;
+        }
+        button:hover {
+            background-color: #ffbb00;
+        }
+        .beer-emoji {
+            animation: pop 0.3s ease-in-out;
+        }
+        @keyframes pop {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.5); }
+            100% { transform: scale(1); }
+        }
     </style>
+    <script>
+        function showBeerEmoji(name) {
+            const emoji = document.getElementById("emoji-" + name);
+            emoji.style.display = 'inline';
+            emoji.classList.add('beer-emoji');
+            setTimeout(() => {
+                emoji.style.display = 'none';
+                emoji.classList.remove('beer-emoji');
+            }, 600);
+        }
+    </script>
 </head>
 <body>
-    <h1>🍺 Beer Leaderboard</h1>
-    {% for label, stats in [('Total', total), ('This Week', weekly), ('This Month', monthly), ('This Semester', semester)] %}
-    <h2>{{ label }}</h2>
-    <table>
-        <tr><th>Name</th><th>Beers</th></tr>
-        {% for name, count in stats %}
-        <tr><td class="name">{{ name }}</td><td>{{ count }}</td></tr>
-        {% endfor %}
-    </table>
-    {% endfor %}
+    <h1>🍻 Beer Leaderboard</h1>
 
-    <h2>Add a Beer 🍻</h2>
-    <table>
-        {% for name in friends %}
-        <tr>
-            <td class="name">{{ name }}</td>
-            <td>
-                <form action="/add/{{ name }}" method="post">
-                    <button type="submit">+1 Beer</button>
-                </form>
-            </td>
-        </tr>
+    <div class="leaderboard">
+        {% for label, stats in [('Total', total), ('This Week', weekly), ('This Month', monthly), ('This Semester', semester)] %}
+        <h2>{{ label }}</h2>
+        <table>
+            <tr><th>Name</th><th>Beers</th><th>Add</th></tr>
+            {% for name, count in stats %}
+            <tr>
+                <td class="name">{{ name }}</td>
+                <td>{{ count }}</td>
+                <td>
+                    <form action="/add/{{ name }}" method="post" onsubmit="showBeerEmoji('{{ name }}')">
+                        <button type="submit">+1 🍺</button>
+                        <span id="emoji-{{ name }}" style="display:none; margin-left:5px;">🍺</span>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
         {% endfor %}
-    </table>
+    </div>
 </body>
 </html>
 '''
 
-import os
-port = int(os.environ.get("PORT", 5000))
-app.run(host='0.0.0.0', port=port)
+if __name__ == '__main__':
+    import os
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
 
