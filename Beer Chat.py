@@ -64,7 +64,8 @@ def leaderboard():
         weekly=build_ranking(weekly),
         monthly=build_ranking(monthly),
         grand_total=grand_total,
-        friends=FRIENDS
+        friends=FRIENDS,
+        titles=TITLES
     )
 
 @app.route('/add/<name>/<int:amount>', methods=['POST'])
@@ -154,20 +155,20 @@ TEMPLATE = '''
         <h2>{{ label }} Leaderboard</h2>
         <table>
             <tr><th>Rank</th><th>Name</th><th>Beers</th><th>Add</th></tr>
-            {% for i, (name, count) in enumerate(stats) %}
+            {% for row in stats %}
             <tr>
-                <td>{{ i + 1 }}</td>
+                <td>{{ loop.index }}</td>
                 <td>
-                    {{ name }}
-                    {% if i < 5 and count > 0 %}<br><small><em>{{ ["Alcoholic in Chief", "Deputy Degenerate", "Brewsketeer", "Pilsner Prodigy", "Certified Sipper"][i] }}</em></small>{% endif %}
-                    {% if count == 0 %}<br><small><em>Virgin</em></small>{% endif %}
+                    {{ row[0] }}
+                    {% if loop.index <= 5 and row[1] > 0 %}<br><small><em>{{ titles[loop.index0] }}</em></small>{% endif %}
+                    {% if row[1] == 0 %}<br><small><em>Virgin</em></small>{% endif %}
                 </td>
-                <td>{{ count }}</td>
+                <td>{{ row[1] }}</td>
                 <td class="buttons">
-                    <form action="/add/{{ name }}/1" method="post">
+                    <form action="/add/{{ row[0] }}/1" method="post">
                         <button type="submit">+1</button>
                     </form>
-                    <form action="/add/{{ name }}/5" method="post">
+                    <form action="/add/{{ row[0] }}/5" method="post">
                         <button type="submit">+5</button>
                     </form>
                 </td>
