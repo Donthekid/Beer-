@@ -25,6 +25,7 @@ TITLES = [
 ]
 
 # Initialize SQLite DB
+
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute("""
@@ -34,8 +35,6 @@ def init_db():
                 timestamp TEXT NOT NULL
             );
         """)
-
-init_db()
 
 def insert_beer(name):
     with sqlite3.connect(DB_FILE) as conn:
@@ -91,5 +90,6 @@ TEMPLATE = Markup('''
 ''')
 
 if __name__ == '__main__':
+    init_db()
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
