@@ -6,7 +6,7 @@ import os
 
 app = Flask(__name__)
 
-DB_FILE = 'beers.db'
+DB_FILE = '/tmp/beers.db'
 FRIENDS = [
     "Daniel", "Eamon", "Carlos", "Gor", "Grace", "Jacob", "Josh", "Lauren",
     "Natalia", "Patrick", "Stephanie", "Sophia", "Alex", "Alora", "Amanda",
