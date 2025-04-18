@@ -105,6 +105,65 @@ TEMPLATE = '''
             margin: 0 auto 30px;
             border-radius: 10px;
         }
+        .beer-area {
+            position: relative;
+            height: 220px;
+            margin-bottom: 20px;
+        }
+        .tap {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            top: 0;
+            width: 100px;
+        }
+        .glass {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 0;
+            width: 80px;
+            transition: transform 1s ease-out, opacity 1s ease-out;
+        }
+        .bubble {
+            position: absolute;
+            bottom: 40px;
+            left: 50%;
+            width: 8px;
+            height: 8px;
+            background: #fff;
+            border-radius: 50%;
+            opacity: 0;
+            animation: bubble 1s ease-out forwards;
+        }
+        @keyframes bubble {
+            0% { bottom: 40px; opacity: 0; }
+            50% { opacity: 1; }
+            100% { bottom: 120px; opacity: 0; }
+        }
+        .foam {
+            position: absolute;
+            top: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90px;
+            height: 20px;
+            background: #fffbe0;
+            border-radius: 10px;
+            display: none;
+        }
+        .foam.show {
+            display: block;
+            animation: foamExpand 0.5s ease-out;
+        }
+        @keyframes foamExpand {
+            from { transform: translateX(-50%) scale(0); }
+            to { transform: translateX(-50%) scale(1); }
+        }
+        .slide-out {
+            transform: translateX(150%) translateY(-50px);
+            opacity: 0;
+        }
         .btn-main {
             background-color: #d4a24b;
             color: #000;
@@ -113,7 +172,7 @@ TEMPLATE = '''
             border: none;
             cursor: pointer;
             border-radius: 8px;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
         table {
             width: 100%;
@@ -124,28 +183,45 @@ TEMPLATE = '''
             padding: 12px;
             border-bottom: 1px solid #d4a24b;
         }
-        .buttons form {
-            display: inline;
-        }
-        .buttons button {
-            margin: 2px;
-            background-color: #ffcc66;
-            border: none;
-            padding: 8px;
-            cursor: pointer;
-            border-radius: 4px;
-        }
     </style>
     <script>
-        function triggerAnimation(amount) {
-            // Placeholder for future animation logic
+        function triggerGlassAnimation() {
+            const glass = document.getElementById('beer-glass');
+            const foam = document.getElementById('foam');
+            const beerArea = document.querySelector('.beer-area');
+
+            glass.src = 'https://i.imgur.com/zsSbWZK.png'; // full beer
+            foam.classList.add('show');
+
+            for (let i = 0; i < 5; i++) {
+                const bubble = document.createElement('div');
+                bubble.className = 'bubble';
+                bubble.style.left = (45 + Math.random() * 10) + '%';
+                beerArea.appendChild(bubble);
+                setTimeout(() => beerArea.removeChild(bubble), 1000);
+            }
+
+            setTimeout(() => {
+                glass.classList.add('slide-out');
+            }, 500);
+
+            setTimeout(() => {
+                glass.classList.remove('slide-out');
+                foam.classList.remove('show');
+                glass.src = 'https://i.imgur.com/7uOlgPA.png'; // empty beer
+            }, 2000);
         }
     </script>
 </head>
 <body>
-    <h1>🍺 THE BEER LOG TAVERN 🍺</h1>
+    <h1>🍺 1 MILLION BEERS 🍺</h1>
     <div class="panel">
-        <form action="/add/Daniel/1" method="post" style="display:inline-block;">
+        <div class="beer-area">
+            <img class="tap" src="https://i.imgur.com/Ft4Qv4h.png" alt="Tap">
+            <div id="foam" class="foam"></div>
+            <img id="beer-glass" class="glass" src="https://i.imgur.com/7uOlgPA.png" alt="Beer Glass">
+        </div>
+        <form action="/add/Daniel/1" method="post" onsubmit="triggerGlassAnimation()">
             <button class="btn-main" type="submit">+1 BEER</button>
         </form>
         <div style="margin-top: 15px; font-size: 14px; color: #fff">Total Beers Consumed: {{ grand_total }}</div>
@@ -176,4 +252,3 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
