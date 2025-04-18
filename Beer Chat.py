@@ -1,4 +1,4 @@
-from flask import Flask, render_template_string, request, redirect, url_for
+\from flask import Flask, render_template_string, request, redirect, url_for
 import json
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -190,7 +190,7 @@ TEMPLATE = '''
             const foam = document.getElementById('foam');
             const beerArea = document.querySelector('.beer-area');
 
-            glass.src = 'https://i.imgur.com/zsSbWZK.png'; // full beer
+            glass.src = 'https://i.imgur.com/kMVMH4h.png'; // full beer (updated)
             foam.classList.add('show');
 
             for (let i = 0; i < 5; i++) {
@@ -208,7 +208,7 @@ TEMPLATE = '''
             setTimeout(() => {
                 glass.classList.remove('slide-out');
                 foam.classList.remove('show');
-                glass.src = 'https://i.imgur.com/7uOlgPA.png'; // empty beer
+                glass.src = 'https://i.imgur.com/qtjA0oQ.png'; // empty beer (updated)
             }, 2000);
         }
     </script>
@@ -217,9 +217,9 @@ TEMPLATE = '''
     <h1>🍺 1 MILLION BEERS 🍺</h1>
     <div class="panel">
         <div class="beer-area">
-            <img class="tap" src="https://i.imgur.com/Ft4Qv4h.png" alt="Tap">
+            <img class="tap" src="https://i.imgur.com/NmUJbEX.png" alt="Tap"> <!-- updated -->
             <div id="foam" class="foam"></div>
-            <img id="beer-glass" class="glass" src="https://i.imgur.com/7uOlgPA.png" alt="Beer Glass">
+            <img id="beer-glass" class="glass" src="https://i.imgur.com/qtjA0oQ.png" alt="Beer Glass"> <!-- updated -->
         </div>
         <form action="/add/Daniel/1" method="post" onsubmit="triggerGlassAnimation()">
             <button class="btn-main" type="submit">+1 BEER</button>
