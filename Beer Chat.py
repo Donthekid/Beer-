@@ -16,6 +16,14 @@ FRIENDS = [
     "Narissa", "Nataly", "Nicolas", "Steven", "Sue", "Tessa", "Valentin"
 ]
 
+TITLES = [
+    "Alcoholic in Chief",
+    "Deputy Degenerate",
+    "Brewsketeer",
+    "Pilsner Prodigy",
+    "Certified Sipper"
+]
+
 # Load existing data or create empty list
 def load_data():
     if os.path.exists(DATA_FILE):
@@ -27,7 +35,6 @@ def save_data(data):
     with open(DATA_FILE, 'w') as f:
         json.dump(data, f)
 
-# Count beers by time range
 def count_beers(data, time_filter=None):
     counts = defaultdict(int)
     now = datetime.now()
@@ -38,10 +45,11 @@ def count_beers(data, time_filter=None):
             continue
         elif time_filter == 'month' and now - time > timedelta(days=30):
             continue
-        elif time_filter == 'semester' and now - time > timedelta(days=120):
-            continue
         counts[name] += 1
     return counts
+
+def build_ranking(counts):
+    return sorted(((name, counts.get(name, 0)) for name in FRIENDS), key=lambda x: (-x[1], x[0]))
 
 @app.route('/')
 def leaderboard():
@@ -49,24 +57,22 @@ def leaderboard():
     total = count_beers(data)
     weekly = count_beers(data, 'week')
     monthly = count_beers(data, 'month')
-    semester = count_beers(data, 'semester')
-
-    def build_ranking(counts):
-        return sorted(((name, counts.get(name, 0)) for name in FRIENDS), key=lambda x: x[1], reverse=True)
+    grand_total = sum(total.values())
 
     return render_template_string(TEMPLATE,
         total=build_ranking(total),
         weekly=build_ranking(weekly),
         monthly=build_ranking(monthly),
-        semester=build_ranking(semester),
+        grand_total=grand_total,
         friends=FRIENDS
     )
 
-@app.route('/add/<name>', methods=['POST'])
-def add_beer(name):
+@app.route('/add/<name>/<int:amount>', methods=['POST'])
+def add_beer(name, amount):
     if name in FRIENDS:
         data = load_data()
-        data.append({"name": name, "timestamp": datetime.now().isoformat()})
+        for _ in range(amount):
+            data.append({"name": name, "timestamp": datetime.now().isoformat()})
         save_data(data)
     return redirect(url_for('leaderboard'))
 
@@ -74,95 +80,102 @@ TEMPLATE = '''
 <!doctype html>
 <html>
 <head>
-    <title>🍺 Beer Leaderboard</title>
+    <title>1 MILLION BEERS</title>
     <style>
         body {
             font-family: 'Segoe UI', sans-serif;
-            background-color: #f9f2ec;
+            background-color: #fffaf2;
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             color: #333;
         }
         h1 {
             font-size: 3em;
             margin-bottom: 10px;
         }
-        h2 {
-            margin-top: 40px;
-            color: #4a3f35;
+        .total-counter {
+            font-size: 2em;
+            margin: 10px 0 30px;
         }
-        .leaderboard, .add-section {
-            max-width: 600px;
-            margin: 0 auto;
+        .tabs button {
+            padding: 10px 20px;
+            margin: 0 5px;
+            cursor: pointer;
+            font-weight: bold;
+            border: 1px solid #ccc;
+            background: #f5f5f5;
+        }
+        .tabs button.active {
+            background: #ffe082;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
         }
         table {
-            width: 100%;
+            margin: auto;
             border-collapse: collapse;
-            margin-bottom: 20px;
+            width: 100%;
+            max-width: 700px;
         }
         th, td {
             padding: 10px;
             border-bottom: 1px solid #ddd;
         }
-        td.name {
-            text-align: left;
-        }
-        button {
-            background-color: #ffcc00;
-            border: none;
-            padding: 8px 14px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background-color 0.2s ease;
-        }
-        button:hover {
-            background-color: #ffbb00;
-        }
-        .beer-emoji {
-            animation: pop 0.3s ease-in-out;
-        }
-        @keyframes pop {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.5); }
-            100% { transform: scale(1); }
+        .buttons form {
+            display: inline;
+            margin-left: 10px;
         }
     </style>
     <script>
-        function showBeerEmoji(name) {
-            const emoji = document.getElementById("emoji-" + name);
-            emoji.style.display = 'inline';
-            emoji.classList.add('beer-emoji');
-            setTimeout(() => {
-                emoji.style.display = 'none';
-                emoji.classList.remove('beer-emoji');
-            }, 600);
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById('btn-' + id).classList.add('active');
         }
+        window.onload = () => showTab('total');
     </script>
 </head>
 <body>
-    <h1>🍻 Beer Leaderboard</h1>
+    <h1>1 MILLION BEERS</h1>
+    <div class="total-counter">Total Beers Consumed: 🍺 {{ grand_total }}</div>
 
-    <div class="leaderboard">
-        {% for label, stats in [('Total', total), ('This Week', weekly), ('This Month', monthly), ('This Semester', semester)] %}
-        <h2>{{ label }}</h2>
+    <div class="tabs">
+        <button id="btn-total" onclick="showTab('total')">Total</button>
+        <button id="btn-weekly" onclick="showTab('weekly')">This Week</button>
+        <button id="btn-monthly" onclick="showTab('monthly')">This Month</button>
+    </div>
+
+    {% for label, stats, id in [('Total', total, 'total'), ('This Week', weekly, 'weekly'), ('This Month', monthly, 'monthly')] %}
+    <div class="tab-content" id="{{ id }}">
+        <h2>{{ label }} Leaderboard</h2>
         <table>
-            <tr><th>Name</th><th>Beers</th><th>Add</th></tr>
-            {% for name, count in stats %}
+            <tr><th>Rank</th><th>Name</th><th>Beers</th><th>Add</th></tr>
+            {% for i, (name, count) in enumerate(stats) %}
             <tr>
-                <td class="name">{{ name }}</td>
-                <td>{{ count }}</td>
+                <td>{{ i + 1 }}</td>
                 <td>
-                    <form action="/add/{{ name }}" method="post" onsubmit="showBeerEmoji('{{ name }}')">
-                        <button type="submit">+1 🍺</button>
-                        <span id="emoji-{{ name }}" style="display:none; margin-left:5px;">🍺</span>
+                    {{ name }}
+                    {% if i < 5 and count > 0 %}<br><small><em>{{ ["Alcoholic in Chief", "Deputy Degenerate", "Brewsketeer", "Pilsner Prodigy", "Certified Sipper"][i] }}</em></small>{% endif %}
+                    {% if count == 0 %}<br><small><em>Virgin</em></small>{% endif %}
+                </td>
+                <td>{{ count }}</td>
+                <td class="buttons">
+                    <form action="/add/{{ name }}/1" method="post">
+                        <button type="submit">+1</button>
+                    </form>
+                    <form action="/add/{{ name }}/5" method="post">
+                        <button type="submit">+5</button>
                     </form>
                 </td>
             </tr>
             {% endfor %}
         </table>
-        {% endfor %}
     </div>
+    {% endfor %}
 </body>
 </html>
 '''
@@ -171,4 +184,3 @@ if __name__ == '__main__':
     import os
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
