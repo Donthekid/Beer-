@@ -129,6 +129,20 @@ TEMPLATE = '''
             display: inline;
             margin-left: 10px;
         }
+        #pint {
+            position: fixed;
+            bottom: 20px;
+            right: -100px;
+            width: 100px;
+            transition: right 0.5s ease-in-out;
+        }
+        #woman {
+            position: fixed;
+            bottom: 0;
+            left: -200px;
+            width: 150px;
+            transition: left 0.8s ease-in-out;
+        }
     </style>
     <script>
         function showTab(id) {
@@ -137,6 +151,30 @@ TEMPLATE = '''
             document.querySelectorAll('.tabs button').forEach(btn => btn.classList.remove('active'));
             document.getElementById('btn-' + id).classList.add('active');
         }
+
+        function animatePint() {
+            const pint = document.getElementById('pint');
+            pint.style.right = '20px';
+            setTimeout(() => {
+                pint.style.right = '-100px';
+            }, 1500);
+        }
+
+        function animateWoman() {
+            const woman = document.getElementById('woman');
+            woman.style.left = '20px';
+            const audio = new Audio('https://www.soundjay.com/human/sounds/female-voice-alcoholic.mp3');
+            audio.play();
+            setTimeout(() => {
+                woman.style.left = '-200px';
+            }, 2000);
+        }
+
+        function triggerAnimation(amount) {
+            if (amount === 1) animatePint();
+            if (amount === 5) animateWoman();
+        }
+
         window.onload = () => showTab('total');
     </script>
 </head>
@@ -165,10 +203,10 @@ TEMPLATE = '''
                 </td>
                 <td>{{ row[1] }}</td>
                 <td class="buttons">
-                    <form action="/add/{{ row[0] }}/1" method="post">
+                    <form action="/add/{{ row[0] }}/1" method="post" onsubmit="triggerAnimation(1)">
                         <button type="submit">+1</button>
                     </form>
-                    <form action="/add/{{ row[0] }}/5" method="post">
+                    <form action="/add/{{ row[0] }}/5" method="post" onsubmit="triggerAnimation(5)">
                         <button type="submit">+5</button>
                     </form>
                 </td>
@@ -177,6 +215,9 @@ TEMPLATE = '''
         </table>
     </div>
     {% endfor %}
+
+    <img id="pint" src="https://i.imgur.com/OyQ7W9D.png" alt="Pint Glass">
+    <img id="woman" src="https://i.imgur.com/woman-placeholder.png" alt="Woman with Beers">
 </body>
 </html>
 '''
