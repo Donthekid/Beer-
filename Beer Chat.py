@@ -1,4 +1,4 @@
-\from flask import Flask, render_template_string, request, redirect, url_for
+from flask import Flask, render_template_string, request, redirect, url_for
 import json
 from datetime import datetime, timedelta
 from collections import defaultdict
@@ -86,22 +86,20 @@ TEMPLATE = '''
     <style>
         body {
             font-family: 'Press Start 2P', monospace;
-            background-image: url('https://i.imgur.com/vOeGzTp.png');
-            background-size: cover;
+            background-color: #2e2e2e;
             color: #ffcc66;
             text-align: center;
             padding: 40px;
         }
         h1 {
-            font-size: 24px;
+            font-size: 20px;
             color: #fff1c1;
-            text-shadow: 2px 2px #000;
         }
         .panel {
             background-color: rgba(0, 0, 0, 0.7);
             border: 4px solid #d4a24b;
             padding: 20px;
-            max-width: 700px;
+            max-width: 900px;
             margin: 0 auto 30px;
             border-radius: 10px;
         }
@@ -111,139 +109,111 @@ TEMPLATE = '''
             margin-bottom: 20px;
         }
         .tap {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: 0;
             width: 100px;
         }
         .glass {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            bottom: 0;
             width: 80px;
             transition: transform 1s ease-out, opacity 1s ease-out;
-        }
-        .bubble {
-            position: absolute;
-            bottom: 40px;
-            left: 50%;
-            width: 8px;
-            height: 8px;
-            background: #fff;
-            border-radius: 50%;
-            opacity: 0;
-            animation: bubble 1s ease-out forwards;
-        }
-        @keyframes bubble {
-            0% { bottom: 40px; opacity: 0; }
-            50% { opacity: 1; }
-            100% { bottom: 120px; opacity: 0; }
-        }
-        .foam {
-            position: absolute;
-            top: -10px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 90px;
-            height: 20px;
-            background: #fffbe0;
-            border-radius: 10px;
-            display: none;
-        }
-        .foam.show {
-            display: block;
-            animation: foamExpand 0.5s ease-out;
-        }
-        @keyframes foamExpand {
-            from { transform: translateX(-50%) scale(0); }
-            to { transform: translateX(-50%) scale(1); }
         }
         .slide-out {
             transform: translateX(150%) translateY(-50px);
             opacity: 0;
         }
-        .btn-main {
-            background-color: #d4a24b;
-            color: #000;
-            padding: 20px 40px;
-            font-size: 16px;
-            border: none;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-top: 20px;
+        .foam {
+            display: block;
+            height: 10px;
+            background: #fffbe0;
+            margin: 0 auto;
+            width: 90px;
+            border-radius: 10px;
         }
+        .tab-buttons button {
+            padding: 10px;
+            font-size: 10px;
+            margin: 5px;
+            background: #444;
+            color: #fff;
+            border: 2px solid #d4a24b;
+            cursor: pointer;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
         table {
             width: 100%;
             border-collapse: collapse;
-            margin-top: 20px;
+            margin-top: 10px;
         }
         th, td {
-            padding: 12px;
+            padding: 8px;
             border-bottom: 1px solid #d4a24b;
+        }
+        form { display: inline; }
+        .buttons button {
+            background-color: #ffcc66;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
         }
     </style>
     <script>
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
         function triggerGlassAnimation() {
             const glass = document.getElementById('beer-glass');
-            const foam = document.getElementById('foam');
-            const beerArea = document.querySelector('.beer-area');
-
-            glass.src = 'https://i.imgur.com/kMVMH4h.png'; // full beer (updated)
-            foam.classList.add('show');
-
-            for (let i = 0; i < 5; i++) {
-                const bubble = document.createElement('div');
-                bubble.className = 'bubble';
-                bubble.style.left = (45 + Math.random() * 10) + '%';
-                beerArea.appendChild(bubble);
-                setTimeout(() => beerArea.removeChild(bubble), 1000);
-            }
-
-            setTimeout(() => {
-                glass.classList.add('slide-out');
-            }, 500);
-
+            glass.src = 'https://i.imgur.com/kMVMH4h.png';
+            glass.classList.add('slide-out');
             setTimeout(() => {
                 glass.classList.remove('slide-out');
-                foam.classList.remove('show');
-                glass.src = 'https://i.imgur.com/qtjA0oQ.png'; // empty beer (updated)
+                glass.src = 'https://i.imgur.com/qtjA0oQ.png';
             }, 2000);
         }
+        window.onload = () => showTab('total');
     </script>
 </head>
 <body>
     <h1>🍺 1 MILLION BEERS 🍺</h1>
     <div class="panel">
-        <div class="beer-area">
-            <img class="tap" src="https://i.imgur.com/NmUJbEX.png" alt="Tap"> <!-- updated -->
-            <div id="foam" class="foam"></div>
-            <img id="beer-glass" class="glass" src="https://i.imgur.com/qtjA0oQ.png" alt="Beer Glass"> <!-- updated -->
-        </div>
-        <form action="/add/Daniel/1" method="post" onsubmit="triggerGlassAnimation()">
-            <button class="btn-main" type="submit">+1 BEER</button>
-        </form>
-        <div style="margin-top: 15px; font-size: 14px; color: #fff">Total Beers Consumed: {{ grand_total }}</div>
+        <img class="tap" src="https://i.imgur.com/NmUJbEX.png" alt="Tap">
+        <div class="foam"></div>
+        <img id="beer-glass" class="glass" src="https://i.imgur.com/qtjA0oQ.png" alt="Beer Glass">
+        <div style="margin-top: 20px; font-size: 14px; color: #fff">Total Beers Consumed: {{ grand_total }}</div>
     </div>
 
-    <div class="panel">
-        <h2>Top Drinkers This Week</h2>
+    <div class="tab-buttons">
+        <button onclick="showTab('total')">Total</button>
+        <button onclick="showTab('weekly')">Weekly</button>
+        <button onclick="showTab('monthly')">Monthly</button>
+    </div>
+
+    {% for label, stats, id in [('Total', total, 'total'), ('This Week', weekly, 'weekly'), ('This Month', monthly, 'monthly')] %}
+    <div class="panel tab-content" id="{{ id }}">
+        <h2>{{ label }} Leaderboard</h2>
         <table>
-            <tr><th>Rank</th><th>Name</th><th>Beers</th></tr>
-            {% for row in weekly %}
+            <tr><th>#</th><th>Name</th><th>Beers</th><th>Add</th></tr>
+            {% for row in stats %}
             <tr>
                 <td>{{ loop.index }}</td>
-                <td>
-                    {{ row[0] }}
-                    {% if loop.index <= 5 and row[1] > 0 %}<br><small><em>{{ titles[loop.index0] }}</em></small>{% endif %}
-                    {% if row[1] == 0 %}<br><small><em>Virgin</em></small>{% endif %}
+                <td>{{ row[0] }}<br>
+                    {% if loop.index <= 5 and row[1] > 0 %}<small><em>{{ titles[loop.index0] }}</em></small>{% endif %}
+                    {% if row[1] == 0 %}<small><em>Virgin</em></small>{% endif %}
                 </td>
                 <td>{{ row[1] }}</td>
+                <td class="buttons">
+                    <form action="/add/{{ row[0] }}/1" method="post" onsubmit="triggerGlassAnimation()">
+                        <button type="submit">+1</button>
+                    </form>
+                    <form action="/add/{{ row[0] }}/5" method="post" onsubmit="triggerGlassAnimation()">
+                        <button type="submit">+5</button>
+                    </form>
+                </td>
             </tr>
             {% endfor %}
         </table>
     </div>
+    {% endfor %}
 </body>
 </html>
 '''
