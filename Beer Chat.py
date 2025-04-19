@@ -45,7 +45,39 @@ def count_beers(data, time_filter=None):
         "bradley": "Bradley",
         "jacqueline": "Jacquline",
         "kenzieeee☀️": "Kenzie",
-        "Carl": "Carlos"
+        "Carl": "Carlos",
+        "Jonathan": "Jonathon",
+        "Yoseph": "Yoseph",
+        "Yumiko": "Yumiko",
+        "gracie": "Gracie",
+        "steven": "Steven",
+        "patrick": "Patrick",
+        "carlos": "Carlos",
+        "eamon": "Eamon",
+        "stephanie": "Stephanie",
+        "carla": "Carla",
+        "bella": "Bella",
+        "grace": "Grace",
+        "daniel": "Daniel",
+        "nicolas": "Nicolas",
+        "nataly": "Nataly",
+        "tessa": "Tessa",
+        "charlie": "Charlie",
+        "jasmine": "Jasmine",
+        "ina": "Ina",
+        "josh": "Josh",
+        "narissa": "Narissa",
+        "lauren": "Lauren",
+        "amanda": "Amanda",
+        "jacob": "Jacob",
+        "valentin": "Valentin",
+        "lucas": "Lucas",
+        "anthony": "Anthony",
+        "kira": "Kira",
+        "kai": "Kai",
+        "natalia": "Natalia",
+        "alora": "Alora",
+        "sophia": "Sophia"
     }
 
     for entry in data:
@@ -161,18 +193,37 @@ TEMPLATE = '''
     </style>
     <script>
         function showTab(id) {
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        window.onload = () => showTab('total');
+    document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    localStorage.setItem('activeTab', id);
+}
+        window.onload = () => {
+    const savedTab = localStorage.getItem('activeTab') || 'total';
+    showTab(savedTab);
+};
 
         function fetchLeaderboard() {
-            fetch('/data')
-                .then(res => res.json())
-                .then(data => {
-                    // Example update: reload the page (replace this with DOM update later)
-                    location.reload();
-                });
+    fetch('/data')
+        .then(res => res.json())
+        .then(data => {
+            const tabId = localStorage.getItem('activeTab') || 'total';
+            const tab = document.getElementById(tabId);
+            if (!tab) return;
+
+            const rows = tab.querySelectorAll('table tr');
+            for (let i = 1; i < rows.length; i++) {
+                const nameCell = rows[i].querySelector('td');
+                if (!nameCell) continue;
+                const name = nameCell.innerText.split('
+')[0].trim();
+                const dataSection = tabId === 'weekly' ? data.weekly : (tabId === 'monthly' ? data.monthly : data.total);
+                const updated = dataSection.find(([n]) => n === name);
+                if (updated) {
+                    rows[i].children[2].innerText = updated[1];
+                }
+            }
+        });
+});
         }
         setInterval(fetchLeaderboard, 5000);
     </script>
