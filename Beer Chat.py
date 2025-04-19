@@ -114,12 +114,6 @@ def leaderboard():
         friends=FRIENDS,
         titles=TITLES,
         recent=data[-5:] if data else []
-    ),
-        weekly=build_ranking(weekly),
-        monthly=build_ranking(monthly),
-        grand_total=grand_total,
-        friends=FRIENDS,
-        titles=TITLES
     )
 
 @app.route('/data')
