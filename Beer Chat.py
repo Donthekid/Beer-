@@ -214,17 +214,15 @@ TEMPLATE = '''
             for (let i = 1; i < rows.length; i++) {
                 const nameCell = rows[i].querySelector('td');
                 if (!nameCell) continue;
-                const name = nameCell.innerText.split('
-')[0].trim();
-                const dataSection = tabId === 'weekly' ? data.weekly : (tabId === 'monthly' ? data.monthly : data.total);
-                const updated = dataSection.find(([n]) => n === name);
-                if (updated) {
-                    rows[i].children[2].innerText = updated[1];
-                }
-            }
+               const name = nameCell.innerText.split('\\n')[0].trim();
+const dataSection = tabId === 'weekly' ? data.weekly : (tabId === 'monthly' ? data.monthly : data.total);
+const updated = dataSection.find(([n]) => n === name);
+if (updated) {
+    rows[i].children[2].innerText = updated[1];
+}
         });
-});
-        }
+    }
+
         setInterval(fetchLeaderboard, 5000);
     </script>
 </head>
