@@ -37,13 +37,29 @@ def save_data(data):
 def count_beers(data, time_filter=None):
     counts = defaultdict(int)
     now = datetime.now()
+
+    # Alias map to normalize names
+    NAME_ALIASES = {
+        "Fantasia(Zee)": "Fantasia",
+        "jonathan": "Jonathon",
+        "bradley": "Bradley",
+        "jacqueline": "Jacquline",
+        "kenzieeee☀️": "Kenzie",
+        "Carl": "Carlos"
+    }
+
     for entry in data:
-        name = entry['name']
+        name = entry['name'].strip()
         timestamp = datetime.fromisoformat(entry['timestamp'])
+
+        # Normalize names
+        name = NAME_ALIASES.get(name, name)
+
         if time_filter == 'week' and now - timestamp > timedelta(days=7):
             continue
         elif time_filter == 'month' and now - timestamp > timedelta(days=30):
             continue
+
         counts[name] += 1
     return counts
 
@@ -204,4 +220,3 @@ TEMPLATE = '''
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
-
