@@ -84,8 +84,8 @@ def add_beer(name, amount):
     return redirect(url_for('leaderboard'))
 
 # The HTML TEMPLATE remains the same as in your current version
-from flask import Markup
-TEMPLATE = Markup('''
+TEMPLATE = '''  ← ✅ plain triple-quoted string
+
 <!doctype html>
 <html>
 <head>
