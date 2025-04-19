@@ -84,7 +84,7 @@ def add_beer(name, amount):
     return redirect(url_for('leaderboard'))
 
 # The HTML TEMPLATE remains the same as in your current version
-TEMPLATE = '''  ← ✅ plain triple-quoted string
+TEMPLATE = '''
 
 <!doctype html>
 <html>
