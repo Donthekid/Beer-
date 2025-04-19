@@ -112,6 +112,13 @@ def leaderboard():
         monthly=build_ranking(monthly),
         grand_total=grand_total,
         friends=FRIENDS,
+        titles=TITLES,
+        recent=data[-5:] if data else []
+    ),
+        weekly=build_ranking(weekly),
+        monthly=build_ranking(monthly),
+        grand_total=grand_total,
+        friends=FRIENDS,
         titles=TITLES
     )
 
@@ -227,6 +234,9 @@ if (updated) {
     </script>
 </head>
 <body>
+    <div style="font-family: 'Press Start 2P', monospace; font-size: 16px; color: #ffcc66; margin-bottom: 10px;">
+        Last Updated: {{ '%Y-%m-%d %H:%M:%S' | format(datetime.utcnow()) }} UTC
+    </div>
     <div style="font-family: 'Press Start 2P', monospace; font-size: 16px; color: #ffcc66; margin-bottom: 20px;">
         Total Beers Logged: {{ grand_total }} 🍻
     </div>
@@ -265,6 +275,14 @@ if (updated) {
         </table>
     </div>
     {% endfor %}
+<div class="panel" style="position: fixed; top: 50px; right: 20px; max-width: 300px;">
+        <h3>Last 5 Beers</h3>
+        <ul style="list-style: none; padding: 0; font-size: 10px;">
+            {% for entry in recent|reverse %}
+            <li>{{ entry.timestamp[:10] }} - {{ entry.name }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 </body>
 </html>
 '''
