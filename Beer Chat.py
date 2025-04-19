@@ -205,7 +205,7 @@ TEMPLATE = '''
             <tr>
                 <td>{{ loop.index }}</td>
                 <td>{{ row[0] }}<br>
-                    {% if loop.index <= 5 and row[1] > 0 %}<small><em>{{ titles[loop.index0] }}</em></small>{% endif %}
+                    {% if loop.index0 < titles|length and row[1] > 0 %}<small><em>{{ titles[loop.index0] }}</em></small>{% endif %}
                     {% if row[1] == 0 %}<small><em>Virgin</em></small>{% endif %}
                 </td>
                 <td>{{ row[1] }}</td>
