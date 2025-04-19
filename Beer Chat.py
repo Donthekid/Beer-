@@ -227,6 +227,9 @@ if (updated) {
     </script>
 </head>
 <body>
+    <div style="font-family: 'Press Start 2P', monospace; font-size: 16px; color: #ffcc66; margin-bottom: 20px;">
+        Total Beers Logged: {{ grand_total }} 🍻
+    </div>
     <h1>🍺 1 MILLION BEERS 🍺</h1>
     <div class="tab-buttons">
         <button onclick="showTab('total')">Total</button>
