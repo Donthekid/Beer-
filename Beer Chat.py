@@ -89,21 +89,119 @@ def add_beer(name, amount):
     return redirect(url_for('leaderboard'))
 
 TEMPLATE = '''
-<!-- Your full working HTML layout should be pasted here -->
-<!-- Add JavaScript like this to fetch data every 5 seconds -->
-<script>
-    function fetchLeaderboard() {
-        fetch('/data')
-            .then(res => res.json())
-            .then(data => {
-                // TODO: Update DOM with data.total / data.weekly / data.monthly
-                console.log(data); // Example: just log for now
-            });
-    }
-    setInterval(fetchLeaderboard, 5000); // Refresh every 5 seconds
-</script>
+<!doctype html>
+<html>
+<head>
+    <title>1 MILLION BEERS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Press Start 2P', monospace;
+            background-color: #1c1c1c;
+            color: #ffcc66;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 {
+            font-size: 20px;
+            color: #fff1c1;
+        }
+        .panel {
+            background-color: rgba(0, 0, 0, 0.7);
+            border: 4px solid #d4a24b;
+            padding: 20px;
+            max-width: 900px;
+            margin: 0 auto 30px;
+            border-radius: 10px;
+        }
+        .tab-buttons button {
+            padding: 10px;
+            font-size: 10px;
+            margin: 5px;
+            background: #444;
+            color: #fff;
+            border: 2px solid #d4a24b;
+            cursor: pointer;
+        }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 8px;
+            border-bottom: 1px solid #d4a24b;
+        }
+        form { display: inline; }
+        .buttons button {
+            background-color: #ffcc66;
+            border: none;
+            padding: 5px 10px;
+            margin: 2px;
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        function showTab(id) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        window.onload = () => showTab('total');
+
+        function fetchLeaderboard() {
+            fetch('/data')
+                .then(res => res.json())
+                .then(data => {
+                    // Example update: reload the page (replace this with DOM update later)
+                    location.reload();
+                });
+        }
+        setInterval(fetchLeaderboard, 5000);
+    </script>
+</head>
+<body>
+    <h1>🍺 1 MILLION BEERS 🍺</h1>
+    <div class="tab-buttons">
+        <button onclick="showTab('total')">Total</button>
+        <button onclick="showTab('weekly')">Weekly</button>
+        <button onclick="showTab('monthly')">Monthly</button>
+    </div>
+
+    {% for label, stats, id in [('Total', total, 'total'), ('This Week', weekly, 'weekly'), ('This Month', monthly, 'monthly')] %}
+    <div class="panel tab-content" id="{{ id }}">
+        <h2>{{ label }} Leaderboard</h2>
+        <table>
+            <tr><th>#</th><th>Name</th><th>Beers</th><th>Add</th></tr>
+            {% for row in stats %}
+            <tr>
+                <td>{{ loop.index }}</td>
+                <td>{{ row[0] }}<br>
+                    {% if loop.index0 < titles|length and row[1] > 0 %}
+                    <small><em>{{ titles[loop.index0] }}</em></small>
+                    {% endif %}
+                    {% if row[1] == 0 %}<small><em>Virgin</em></small>{% endif %}
+                </td>
+                <td>{{ row[1] }}</td>
+                <td class="buttons">
+                    <form action="/add/{{ row[0] }}/1" method="post">
+                        <button type="submit">+1</button>
+                    </form>
+                    <form action="/add/{{ row[0] }}/5" method="post">
+                        <button type="submit">+5</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+    {% endfor %}
+</body>
+</html>
 '''
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
+
